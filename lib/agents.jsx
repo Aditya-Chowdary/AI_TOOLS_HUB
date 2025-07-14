@@ -8,6 +8,7 @@ import InsightsIcon from '@mui/icons-material/InsightsOutlined';
 import AllInboxIcon from '@mui/icons-material/AllInboxOutlined';
 import AccountTreeIcon from '@mui/icons-material/AccountTree';
 import PlaylistAddCheckIcon from '@mui/icons-material/PlaylistAddCheck';
+import RecordVoiceOverIcon from '@mui/icons-material/RecordVoiceOver';
 
 export const agentItems = [
   {
@@ -89,5 +90,13 @@ export const agentItems = [
     icon: AccountTreeIcon, // Or another suitable icon
     prompt: "Create a flowchart for the scientific method",
     hasWidget: true,
-}
+},
+{
+    agent_id: "tts_agent",
+    title: "AI Voice Actor",
+    description: "Convert any text into high-quality speech.",
+    icon: RecordVoiceOverIcon,
+    prompt: "Generate the following line in a clear voice: 'Hello, this is a test of the new text to speech agent.'",
+    hasWidget: true, // This will ensure it's treated as a tool
+  },
 ];

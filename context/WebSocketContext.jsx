@@ -15,12 +15,13 @@ export function WebSocketProvider({ children }) {
   const ws = useRef(null);
 
   useEffect(() => {
+    // This connection logic remains the same.
     if (ws.current) return;
     const socket = new WebSocket(`${WEBSOCKET_URL}${Date.now()}`);
     ws.current = socket;
     socket.onopen = () => {
       setIsConnected(true);
-      setMessages([{ role: 'bot', content_type: 'text', payload: { content: 'Vishesh AI is connected.' } }]);
+     setMessages([{ role: 'bot', content_type: 'text', payload: { content: 'Vishesh AI is connected.' } }]);
     };
     socket.onmessage = (event) => {
       setIsThinking(false);
@@ -36,24 +37,21 @@ export function WebSocketProvider({ children }) {
 
   const sendMessage = (text) => {
     if (ws.current?.readyState !== WebSocket.OPEN) return;
-    const userMessage = { role: 'user', content_type: 'text', payload: { content: text } };
+    const userMessage = { role: 'user', content_type: 'text', payload: { content: text }, timestamp: Date.now() };
     setMessages((prev) => [...prev, userMessage]);
     setIsThinking(true);
+    // ALL messages now go through this single 'text_message' type,
+    // which allows the backend AI router to handle everything.
     ws.current.send(JSON.stringify({ type: 'text_message', content: text }));
   };
   
-  // This is for clicking cards to get a guaranteed response
-  const runAgent = (agent_id, prompt) => {
-    if (ws.current?.readyState !== WebSocket.OPEN) return;
-    const userMessage = { role: 'user', content_type: 'text', payload: { content: prompt } };
-    setMessages((prev) => [...prev, userMessage]);
-    setIsThinking(true);
-    ws.current.send(JSON.stringify({ type: 'run_agent', agent_id: agent_id }));
-  };
+  // --- FIX: The `runAgent` function is removed. ---
+  // It promoted a rigid, non-AI-router approach. By removing it, we ensure
+  // all logic flows through `sendMessage`, which is what the new backend expects.
 
   const value = {
     messages, isConnected, isThinking,
-    sendMessage, runAgent, // Both are needed for the hybrid model
+    sendMessage, // `runAgent` is gone.
     inputRef, selectedPrompt, setSelectedPrompt,
     mobileOpen, setMobileOpen,
   };

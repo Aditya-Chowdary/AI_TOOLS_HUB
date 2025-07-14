@@ -1,7 +1,7 @@
 // components/chat/Message.jsx
 'use client';
 import React from 'react';
-import { Box, Avatar, Paper, Typography } from '@mui/material'; // Import Typography for the error case
+import { Box, Avatar, Paper, Typography } from '@mui/material';
 import { motion } from 'framer-motion';
 import SmartToyOutlinedIcon from '@mui/icons-material/SmartToyOutlined';
 import PersonOutlineOutlinedIcon from '@mui/icons-material/PersonOutlineOutlined';
@@ -12,26 +12,22 @@ import LineChart from '../widgets/LineChart';
 import VideoWidget from '../widgets/VideoWidget';
 import EmailWidget from '../widgets/EmailWidget';
 import TextMessage from '../widgets/TextMessage';
+// --- NEW ---
+import AudioWidget from '../widgets/AudioWidget';
 
-// A helper component to render the correct content based on type
+
 const MessageContent = ({ message }) => {
-  // --- THIS IS THE DEFINITIVE FIX ---
-  // Safely access properties using optional chaining and provide defaults.
   const content_type = message?.content_type;
   const payload = message?.payload;
   const errorData = message?.data;
 
-  // If there's no payload but there is error data, treat it as a text error message.
   if (!payload && errorData) {
     return <TextMessage payload={{ content: `**Error:** ${errorData}` }} />;
   }
   
-  // If payload is somehow missing, show a generic error.
   if (!payload) {
     return <TextMessage payload={{ content: "Received an invalid message format from the server." }} />;
   }
-
-  // --- END OF FIX ---
 
   switch (content_type) {
     case 'text':
@@ -44,9 +40,10 @@ const MessageContent = ({ message }) => {
       return <VideoWidget payload={payload} />;
     case 'email':
       return <EmailWidget payload={payload} />;
+    // --- NEW ---
+    case 'audio':
+      return <AudioWidget payload={payload} />;
     default:
-      // This fallback now handles cases where content_type is null or undefined
-      // by displaying the raw content if available.
       return <TextMessage payload={{ content: payload.content || "An unexpected response was received." }} />;
   }
 };

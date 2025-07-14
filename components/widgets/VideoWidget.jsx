@@ -1,37 +1,119 @@
 // components/widgets/VideoWidget.jsx
 'use client';
-import React from 'react';
-import { Box, Typography, Paper } from '@mui/material';
-import VideocamIcon from '@mui/icons-material/Videocam';
-import { marked } from 'marked';
+import React, { useState, useEffect } from 'react';
+import { Box, Paper, Typography, CircularProgress, useTheme } from '@mui/material';
+import MovieFilterIcon from '@mui/icons-material/MovieFilter';
+import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 
 export default function VideoWidget({ payload }) {
-  const { intro_text, confirmation_message, script } = payload;
+  const theme = useTheme();
+  const { intro_text, video_url } = payload;
+
+  const [isLoading, setIsLoading] = useState(true);
+  const [hasError, setHasError] = useState(false);
+
+  const mainServerBaseUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:8000';
+  
+  const fullVideoUrl = `${mainServerBaseUrl}${video_url}`;
+
+  useEffect(() => {
+    setIsLoading(true);
+    setHasError(false);
+  }, [fullVideoUrl]);
+
+  const handleCanPlay = () => setIsLoading(false);
+  const handleError = () => {
+    setIsLoading(false);
+    setHasError(true);
+  };
 
   return (
-    <>
-      {intro_text && <Typography component="div" sx={{ mb: 1.5 }} dangerouslySetInnerHTML={{ __html: marked.parse(intro_text) }} />}
+    <Box sx={{ mt: 2, width: '100%' }}>
       <Paper
-        variant="outlined"
+        elevation={0}
         sx={{
-          p: 2, textAlign: 'center',
-          borderStyle: 'dashed', borderWidth: '2px', borderColor: 'primary.main',
-          bgcolor: 'rgba(109, 40, 217, 0.05)', borderRadius: '12px'
+          p: { xs: 2, md: 3 },
+          borderRadius: '20px',
+          border: `1px solid ${theme.palette.divider}`,
+          background: 'linear-gradient(180deg, rgba(255,255,255,1) 0%, rgba(250,251,252,1) 100%)',
+          boxShadow: '0px 10px 30px -5px rgba(0, 0, 0, 0.04)',
         }}
       >
-        <VideocamIcon sx={{ fontSize: 48, color: 'primary.main' }} />
-        <Typography variant="h6" sx={{ fontWeight: 600, mt: 1 }}>
-          {confirmation_message}
-        </Typography>
-        <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-          The generated script is shown below for your review.
-        </Typography>
-        <Paper elevation={0} sx={{ p: 1.5, textAlign: 'left', bgcolor: 'rgba(255,255,255,0.7)', maxHeight: 200, overflowY: 'auto', borderRadius: '8px' }}>
-          <Typography variant="body2" component="pre" sx={{ whiteSpace: 'pre-wrap', wordWrap: 'break-word', fontFamily: 'monospace' }}>
-            {script}
+        {/* --- Widget Header --- */}
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 2 }}>
+          <Box
+            sx={{
+              display: 'flex',
+              p: 1,
+              borderRadius: '12px',
+              color: 'primary.main',
+              backgroundColor: 'primary.light',
+            }}
+          >
+            <MovieFilterIcon />
+          </Box>
+          <Typography variant="h6" fontWeight="600">
+            {intro_text || "Generated Video"}
           </Typography>
-        </Paper>
+        </Box>
+
+        {/* --- Video Player Container --- */}
+        <Box
+          sx={{
+            position: 'relative',
+            borderRadius: '16px',
+            overflow: 'hidden',
+            bgcolor: 'black',
+            minHeight: '250px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            border: `1px solid ${theme.palette.divider}`,
+          }}
+        >
+          {isLoading && (
+            <Box sx={{ position: 'absolute', zIndex: 1, color: 'white' }}>
+              <CircularProgress color="inherit" />
+            </Box>
+          )}
+
+          {hasError && (
+            <Box
+              sx={{
+                position: 'absolute',
+                zIndex: 1,
+                color: 'rgba(255, 255, 255, 0.7)',
+                textAlign: 'center',
+                p: 2,
+              }}
+            >
+              <ErrorOutlineIcon sx={{ fontSize: 48, mb: 1 }} />
+              <Typography>Failed to load video.</Typography>
+            </Box>
+          )}
+
+          <video
+            key={fullVideoUrl}
+            onCanPlay={handleCanPlay}
+            onError={handleError}
+            style={{
+              width: '100%',
+              height: 'auto',
+              display: 'block',
+              opacity: isLoading || hasError ? 0 : 1,
+              transition: 'opacity 0.3s ease-in-out',
+            }}
+            controls
+            autoPlay
+            loop
+            muted
+            playsInline
+          >
+            <source src={fullVideoUrl} type="video/mp4" />
+            Your browser does not support the video tag.
+          </video>
+        </Box>
       </Paper>
-    </>
+    </Box>
   );
 }

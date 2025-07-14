@@ -12,7 +12,7 @@ const pulse = keyframes`
 `;
 
 export default function ConnectionStatus({ isConnected, isConnecting }) {
-  const status = isConnecting ? 'Connecting' : isConnected ? 'Connected' : 'Disconnected';
+  const status = isConnecting ? 'Connecting' : isConnected ? 'Connected' : 'Disconnected refresh application once';
   const color = isConnecting ? 'warning.main' : isConnected ? 'success.main' : 'error.main';
   const Icon = isConnected ? WifiIcon : WifiOffIcon;
 

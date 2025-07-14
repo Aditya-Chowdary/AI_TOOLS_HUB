@@ -1,3 +1,4 @@
+// components/chat/Sidebar.jsx
 'use client';
 import React from 'react';
 import { Drawer, Box, Typography, List, useTheme, useMediaQuery, AppBar, Toolbar, IconButton } from '@mui/material';
@@ -12,18 +13,19 @@ export default function Sidebar() {
   const isDesktop = useMediaQuery(theme.breakpoints.up('md'));
   const drawerWidth = 340;
   
-  const { mobileOpen, setMobileOpen, setSelectedPrompt, runAgent, isThinking } = useWebSocket();
+  // --- FIX: We no longer need `runAgent` here, simplifying the logic. ---
+  const { mobileOpen, setMobileOpen, setSelectedPrompt, isThinking, inputRef } = useWebSocket();
 
   const handleAgentSelect = (agent) => {
     if (isThinking) return;
 
-    if (agent.hasWidget) {
-      // For widget agents, run them directly for a guaranteed, fast response.
-      runAgent(agent.agent_id, agent.prompt);
-    } else {
-      // For text agents, populate the input field for the user to send.
-      setSelectedPrompt({ text: agent.prompt, timestamp: Date.now() });
-    }
+    // --- FIX: The logic is now unified. ALL agent cards will populate the input field. ---
+    // This allows the user to see, edit, and then consciously send the prompt.
+    // The backend's AI router will handle directing it to the correct tool.
+    setSelectedPrompt({ text: agent.prompt, timestamp: Date.now() });
+
+    // Focus the input field after selecting a prompt
+    inputRef.current?.focus();
     
     if (!isDesktop) {
       setMobileOpen(false);
