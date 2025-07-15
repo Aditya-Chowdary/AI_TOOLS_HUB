@@ -12,8 +12,9 @@ import LineChart from '../widgets/LineChart';
 import VideoWidget from '../widgets/VideoWidget';
 import EmailWidget from '../widgets/EmailWidget';
 import TextMessage from '../widgets/TextMessage';
-// --- NEW ---
+import VideoSummarizerWidget from '../widgets/VideoSummarizerWidget';
 import AudioWidget from '../widgets/AudioWidget';
+import SummaryWidget from '../widgets/SummaryWidget';
 
 
 const MessageContent = ({ message }) => {
@@ -43,6 +44,10 @@ const MessageContent = ({ message }) => {
     // --- NEW ---
     case 'audio':
       return <AudioWidget payload={payload} />;
+    case 'video_summary':
+      return <VideoSummarizerWidget payload={payload} />;
+      case 'summary':
+      return <SummaryWidget payload={payload} />;
     default:
       return <TextMessage payload={{ content: payload.content || "An unexpected response was received." }} />;
   }

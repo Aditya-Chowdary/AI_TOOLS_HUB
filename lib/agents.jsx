@@ -1,3 +1,7 @@
+// lib/agents.js
+'use client';
+
+// Import the icons for the agent cards
 import BriefcaseIcon from '@mui/icons-material/WorkOutline';
 import VideoCameraIcon from '@mui/icons-material/VideocamOutlined';
 import SupportAgentIcon from '@mui/icons-material/SupportAgentOutlined';
@@ -43,14 +47,23 @@ export const agentItems = [
     prompt: "Generate a project proposal for 'Global Tech Inc.' for a 'new e-commerce platform'.",
     hasWidget: false,
   },
-  {
-    agent_id: "meeting_summarizer",
-    title: "AI Meeting Summarizer",
-    description: "Summarize a transcript and find action items.",
+  // This is the corrected object for your lib/agents.js file
+
+{
+    agent_id: "content_summarizer",
+    title: "Content Summarizer", 
+    description: "Paste text or upload video to get a full summary with action items.", 
     icon: SummarizeIcon,
-    prompt: `Summarize this meeting: "Q2 numbers are good but engagement is down. Sarah, investigate. Alex, prep the Q3 budget."`,
-    hasWidget: false,
-  },
+    prompt: `Please summarize these meeting notes and tell me what the action items are:
+
+Okay team, let's recap the weekly sync. Project Titan's launch is on track for the 15th. 
+The marketing team has done a great job with the new ad campaign, 
+but we've noticed a 10% drop in user engagement on the beta platform since last week's update. 
+This is a red flag. Sarah, can you please form a small task force to investigate the root cause of the engagement drop? 
+We need a preliminary report by next Wednesday. Also, Alex, I will need you to prepare the initial budget forecast for Project Phoenix 
+and have it ready for the leadership review on Friday.`,
+    hasWidget: true, 
+},
   {
     agent_id: "onboarding_bot",
     title: "AI Onboarding Bot",
@@ -75,7 +88,7 @@ export const agentItems = [
     prompt: "What is your policy on international shipping?",
     hasWidget: false,
   },
-    {
+  {
     agent_id: "inbox_zero",
     title: "AI Inbox Agent",
     description: "Categorize an incoming email automatically.",
@@ -87,16 +100,16 @@ export const agentItems = [
     agent_id: "flowchart_agent",
     title: "AI Flowchart Generator",
     description: "Visualize any process or concept.",
-    icon: AccountTreeIcon, // Or another suitable icon
+    icon: AccountTreeIcon,
     prompt: "Create a flowchart for the scientific method",
     hasWidget: true,
-},
-{
+  },
+  {
     agent_id: "tts_agent",
     title: "AI Voice Actor",
     description: "Convert any text into high-quality speech.",
     icon: RecordVoiceOverIcon,
     prompt: "Generate the following line in a clear voice: 'Hello, this is a test of the new text to speech agent.'",
-    hasWidget: true, // This will ensure it's treated as a tool
+    hasWidget: true,
   },
 ];

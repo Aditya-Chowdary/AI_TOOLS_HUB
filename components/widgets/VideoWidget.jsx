@@ -50,7 +50,7 @@ export default function VideoWidget({ payload }) {
               backgroundColor: 'primary.light',
             }}
           >
-            <MovieFilterIcon />
+            <MovieFilterIcon sx={{color: 'white',}}/>
           </Box>
           <Typography variant="h6" fontWeight="600">
             {intro_text || "Generated Video"}
@@ -105,8 +105,6 @@ export default function VideoWidget({ payload }) {
             }}
             controls
             autoPlay
-            loop
-            muted
             playsInline
           >
             <source src={fullVideoUrl} type="video/mp4" />
