@@ -1,25 +1,36 @@
-// app/layout.js
 'use client';
 import { ThemeProvider } from '@mui/material/styles';
-import CssBaseline from '@mui/material/CssBaseline';
-import theme from '../lib/theme';
-import "./globals.css";
-// --- FIX: Import the WebSocketProvider here ---
+import { CssBaseline, Box } from '@mui/material';
+
 import { WebSocketProvider } from '@/context/WebSocketContext';
+import theme from '@/lib/theme';
 
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      {/* The ThemeProvider remains at the top level */}
       <ThemeProvider theme={theme}>
-        <CssBaseline />
-        <body>
-          {/* --- FIX: Wrap your entire application with the WebSocketProvider --- */}
-          {/* This ensures the connection is established once and persists across all pages. */}
-          <WebSocketProvider>
+        <WebSocketProvider>
+          <CssBaseline />
+          <body>
+            {/* This Box creates the dynamic, animated gradient background */}
+            <Box sx={{
+              position: 'fixed',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              zIndex: -1,
+              background: `radial-gradient(circle at 10% 20%, ${theme.palette.primary.dark} 0%, ${theme.palette.background.default} 25%),
+                           radial-gradient(circle at 80% 90%, ${theme.palette.secondary.dark} 0%, ${theme.palette.background.default} 25%)`,
+              animation: 'moveBackground 20s infinite alternate linear',
+              '@keyframes moveBackground': {
+                '0%': { backgroundPosition: '0% 50%' },
+                '100%': { backgroundPosition: '100% 50%' },
+              }
+            }} />
             {children}
-          </WebSocketProvider>
-        </body>
+          </body>
+        </WebSocketProvider>
       </ThemeProvider>
     </html>
   );

@@ -11,23 +11,24 @@ export function WebSocketProvider({ children }) {
   const [isThinking, setIsThinking] = useState(false);
   const [selectedPrompt, setSelectedPrompt] = useState({ text: '', timestamp: null });
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [clientId, setClientId] = useState(null);
   const inputRef = useRef(null);
   const ws = useRef(null);
 
   useEffect(() => {
-    // This connection logic remains the same.
-    if (ws.current) return;
-    const socket = new WebSocket(`${WEBSOCKET_URL}${Date.now()}`);
+    const id = Date.now();
+    setClientId(id);
+    const socket = new WebSocket(`${WEBSOCKET_URL}${id}`);
     ws.current = socket;
     socket.onopen = () => {
       setIsConnected(true);
-     setMessages([{ role: 'bot', content_type: 'text', payload: { content: 'Vishesh AI is connected.' } }]);
+      setMessages([{ role: 'bot', content_type: 'text', payload: { content: 'Vishesh AI is connected.' }, timestamp: Date.now() }]);
     };
     socket.onmessage = (event) => {
       setIsThinking(false);
       try {
         const response = JSON.parse(event.data);
-        setMessages((prev) => [...prev, { role: 'bot', ...response }]);
+        setMessages((prev) => [...prev, { role: 'bot', ...response, timestamp: Date.now() }]);
       } catch (e) { console.error("Failed to parse server message:", e); }
     };
     socket.onerror = () => setIsConnected(false);
@@ -40,18 +41,47 @@ export function WebSocketProvider({ children }) {
     const userMessage = { role: 'user', content_type: 'text', payload: { content: text }, timestamp: Date.now() };
     setMessages((prev) => [...prev, userMessage]);
     setIsThinking(true);
-    // ALL messages now go through this single 'text_message' type,
-    // which allows the backend AI router to handle everything.
     ws.current.send(JSON.stringify({ type: 'text_message', content: text }));
   };
-  
-  // --- FIX: The `runAgent` function is removed. ---
-  // It promoted a rigid, non-AI-router approach. By removing it, we ensure
-  // all logic flows through `sendMessage`, which is what the new backend expects.
+
+  const uploadAndSummarizeFile = async (file) => {
+    if (!file || !clientId) return;
+
+    const videoUrl = URL.createObjectURL(file);
+    const userMessage = {
+        role: 'user',
+        content_type: 'video_user_message',
+        payload: { videoUrl, fileName: file.name },
+        timestamp: Date.now()
+    };
+    setMessages((prev) => [...prev, userMessage]);
+    setIsThinking(true);
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+        const response = await fetch(`http://127.0.0.1:8000/upload_and_summarize/${clientId}`, {
+            method: 'POST',
+            body: formData,
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({ detail: 'Server returned an unreadable error.' }));
+            throw new Error(errorData.detail || 'File upload failed due to a server error.');
+        }
+    } catch (error) {
+        const errorMessage = { role: 'bot', content_type: 'text', payload: { content: `**Upload Error:** ${error.message}` }, timestamp: Date.now() };
+        setMessages((prev) => [...prev, errorMessage]);
+        setIsThinking(false);
+        URL.revokeObjectURL(videoUrl);
+    }
+  };
 
   const value = {
     messages, isConnected, isThinking,
-    sendMessage, // `runAgent` is gone.
+    sendMessage,
+    uploadAndSummarizeFile,
     inputRef, selectedPrompt, setSelectedPrompt,
     mobileOpen, setMobileOpen,
   };
